@@ -9,7 +9,7 @@ export class UserService {
     return this.prisma.user.findMany({ select: { id: true, email: true } });
   }
 
-  async findById(id: number) {
+  async findById(id: string) {
     return this.prisma.user.findUnique({
       where: { id },
       select: {

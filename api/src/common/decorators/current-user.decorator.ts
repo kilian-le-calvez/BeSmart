@@ -10,7 +10,7 @@ export const CurrentUser = createParamDecorator(
 
 export class CurrentUserRequest {
   @ApiProperty({ description: 'The unique identifier of the user' })
-  id: number;
+  id: string;
 
   @ApiProperty({ description: 'The email address of the user' })
   email: string;

@@ -37,7 +37,7 @@ export class AuthService {
     // 2. Hash password and create user
     const hashed = await bcrypt.hash(data.password, 10);
     const user = await this.prisma.user.create({
-      data: { email: data.email, password: hashed },
+      data: { ...data, password: hashed },
     });
 
     return user.email;
@@ -63,13 +63,13 @@ export class AuthService {
 
   /**
    * The function `signToken` generates a JWT token with a payload containing the user ID and email.
-   * @param {number} userId - The `userId` parameter is a number that represents the unique identifier of
+   * @param {string} userId - The `userId` parameter is a string that represents the unique identifier of
    * a user.
    * @param {string} email - The `email` parameter is a string that represents the email address of the
    * user for whom the token is being signed.
    * @returns A JSON Web Token (JWT) is being returned.
    */
-  private signToken(userId: number, email: string) {
+  private signToken(userId: string, email: string) {
     const payload = { sub: userId, email };
     return this.jwt.sign(payload);
   }

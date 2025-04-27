@@ -5,7 +5,7 @@ export class UserResponse {
     description: 'The unique identifier of the user',
     example: 1,
   })
-  id: number;
+  id: string;
 
   @ApiProperty({
     description: 'The email address of the user',
