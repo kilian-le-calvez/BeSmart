@@ -33,8 +33,8 @@ describe('UserService', () => {
   describe('findAll', () => {
     it('should return a list of users', async () => {
       const mockUsers = [
-        { id: 1, email: 'a@test.com' },
-        { id: 2, email: 'b@test.com' },
+        { id: 'uuid-1', email: 'a@test.com' },
+        { id: 'uuid-2', email: 'b@test.com' },
       ];
       mockPrismaService.user.findMany.mockResolvedValue(mockUsers);
 
@@ -46,13 +46,13 @@ describe('UserService', () => {
 
   describe('findById', () => {
     it('should return a user by id', async () => {
-      const mockUser = { id: 1, email: 'a@test.com' };
+      const mockUser = { id: 'uuid-1', email: 'a@test.com' };
       mockPrismaService.user.findUnique.mockResolvedValue(mockUser);
 
-      const result = await service.findById(1);
+      const result = await service.findById('uuid-1');
       expect(result).toEqual(mockUser);
       expect(mockPrismaService.user.findUnique).toHaveBeenCalledWith({
-        where: { id: 1 },
+        where: { id: 'uuid-1' },
         select: { id: true, email: true },
       });
     });

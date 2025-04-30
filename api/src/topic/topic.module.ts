@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { TopicService } from './topic.service';
-import { TopicController } from './topic.controller';
+import { TopicService } from './service/topic.service';
+import { TopicController } from './controller/topic.controller';
 import { PrismaModule } from '@prisma-api/prisma.module';
 
 @Module({

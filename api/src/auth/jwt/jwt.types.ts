@@ -4,7 +4,7 @@ import { ApiProperty } from '@nestjs/swagger';
 specifies the structure of the JWT payload for a user. It includes the `username`, `email`, and `sub`
 properties. */
 export interface JWTPayloadUser {
-  sub: number;
+  sub: string;
 }
 
 export class JWT {
@@ -16,5 +16,5 @@ export class JWT {
 }
 
 export interface UserIdInRequest {
-  id: number;
+  id: string;
 }

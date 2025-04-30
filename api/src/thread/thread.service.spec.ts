@@ -1,12 +1,26 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ThreadService } from './thread.service';
+import { PrismaService } from '@prisma-api/prisma.service';
+
+const mockPrismaService = {
+  user: {
+    findMany: jest.fn(),
+    findUnique: jest.fn(),
+  },
+};
 
 describe('ThreadService', () => {
   let service: ThreadService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [ThreadService],
+      providers: [
+        ThreadService,
+        {
+          provide: PrismaService,
+          useValue: mockPrismaService,
+        },
+      ],
     }).compile();
 
     service = module.get<ThreadService>(ThreadService);

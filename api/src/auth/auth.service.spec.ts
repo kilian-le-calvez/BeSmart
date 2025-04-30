@@ -38,7 +38,11 @@ describe('AuthService', () => {
 
   describe('register', () => {
     it('should successfully register a user and return a success message', async () => {
-      const registerDto = { email: 'test@example.com', password: 'password' };
+      const registerDto = {
+        username: 'test',
+        email: 'test@example.com',
+        password: 'password',
+      };
       const mockCreate = jest.fn().mockResolvedValue({
         email: registerDto.email,
       });
@@ -48,7 +52,11 @@ describe('AuthService', () => {
 
       expect(result).toBe('test@example.com');
       expect(mockCreate).toHaveBeenCalledWith({
-        data: { email: registerDto.email, password: expect.any(String) },
+        data: {
+          username: 'test',
+          email: registerDto.email,
+          password: expect.any(String),
+        },
       });
     });
   });

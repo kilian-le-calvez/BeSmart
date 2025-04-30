@@ -29,11 +29,11 @@ describe('UserController', () => {
   describe('get me', () => {
     it('should return the id and email of the current user', async () => {
       const resultUser: UserResponse = {
-        id: 1,
+        id: 'uuid-1',
         email: 'test@example.com',
       };
       const fakeCurrentUser: CurrentUserRequest = {
-        id: 1,
+        id: 'uuid-1',
         email: 'test@example.com',
       };
 
@@ -49,7 +49,7 @@ describe('UserController', () => {
     it('should return the id and email of the current user', async () => {
       const resultUserList: UserResponse[] = [
         {
-          id: 1,
+          id: 'uuid-1',
           email: 'test@example.com',
         },
       ];

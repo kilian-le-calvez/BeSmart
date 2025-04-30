@@ -11,11 +11,14 @@
     "outDir": "./dist",
     "baseUrl": "./",
     "paths": {
+      "@app/*": ["src/app/*"],
       "@common/*": ["src/common/*"],
-      "@user/*": ["src/user/*"],
-      "@auth/*": ["src/auth/*"],
       "@prisma-api/*": ["src/prisma/*"],
-      "@app/*": ["src/app/*"]
+      "@auth/*": ["src/auth/*"],
+      "@user/*": ["src/user/*"],
+      "@topic/*": ["src/topic/*"],
+      "@thread/*": ["src/thread/*"],
+      "@contribution/*": ["src/contribution/*"]
     },
     "incremental": true,
     "skipLibCheck": true,

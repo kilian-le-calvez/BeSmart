@@ -28,7 +28,11 @@ describe('AuthController', () => {
 
   describe('register', () => {
     it('should call AuthService.register with correct data', async () => {
-      const dto: RegisterDto = { email: 'test@example.com', password: 'pass' };
+      const dto: RegisterDto = {
+        username: 'test',
+        email: 'test@example.com',
+        password: 'pass',
+      };
       const resultService = dto.email;
       mockAuthService.register.mockResolvedValue(resultService);
 
