@@ -7,7 +7,17 @@ export default {
   transform: {
     '^.+\\.ts$': 'ts-jest',
   },
-  collectCoverage: true,
+  collectCoverageFrom: [
+    'src/**/*.ts',
+    '!src/**/*.module.ts', // you can exclude modules if needed
+    '!src/**/*.dto.ts', // exclude DTOs from coverage
+    '!src/**/*.response.ts', // exclude response classes from coverage
+    '!src/**/*.types.ts', // exclude response classes from coverage
+    '!src/**/*.spec.ts', // exclude test files from coverage
+    '!src/**/*.e2e-spec.ts', // exclude test files from coverage
+    '!src/common/decorators/current-user.decorator.ts', // exclude from coverage
+    '!src/main.ts', // exclude main.ts from coverage
+  ],
   coverageReporters: ['text', 'html'],
   moduleNameMapper: {
     '^@app/(.*)$': '<rootDir>/src/app/$1',

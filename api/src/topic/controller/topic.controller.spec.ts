@@ -3,6 +3,8 @@ import { TopicService } from '@topic/service/topic.service';
 import { TopicController } from './topic.controller';
 import { User } from '@prisma/client';
 import { ForbiddenException } from '@nestjs/common';
+import { TopicResponse } from '@topic/topic.response';
+import { BaseResponse } from '@common/response/base.response';
 
 describe('TopicController', () => {
   let controller: TopicController;
@@ -40,7 +42,7 @@ describe('TopicController', () => {
         tags: ['tag1', 'tag2'],
       };
       const mockUser = { id: 'user-id' } as User;
-      const mockTopicResponse = {
+      const mockTopicResponse: Partial<TopicResponse> = {
         id: 'topic-id',
         title: 'Test Topic',
         description: 'Test Description',
@@ -55,10 +57,11 @@ describe('TopicController', () => {
         mockUser.id,
         mockCreateTopicDto,
       );
-      expect(result).toEqual({
+      const response: BaseResponse<Partial<TopicResponse>> = {
         message: 'Topic created successfully',
         data: mockTopicResponse,
-      });
+      };
+      expect(result).toEqual(response);
     });
 
     it('should throw an error if topic creation fails', async () => {

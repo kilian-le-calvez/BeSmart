@@ -3,7 +3,12 @@ import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { PrismaService } from '@prisma-api/prisma.service';
 import { AppModule } from '@app/app.module';
-import { testUser } from '@tests/e2e-setup';
+
+export const authTestUser = {
+  username: 'auth-e2example',
+  email: 'auth@e2example.com',
+  password: 'password123',
+};
 
 async function cleanupExampleUsers(prisma: PrismaService) {
   await prisma.user.deleteMany({
@@ -45,7 +50,7 @@ describe('Auth E2E Tests', () => {
   it('should register a new user', async () => {
     const response = await agent
       .post('/auth/register')
-      .send(testUser)
+      .send(authTestUser)
       .expect(201);
 
     expect(response.body.message).toContain(
@@ -54,22 +59,22 @@ describe('Auth E2E Tests', () => {
   });
 
   it('should fail to register with existing email', async () => {
-    await agent.post('/auth/register').send(testUser).expect(201);
+    await agent.post('/auth/register').send(authTestUser).expect(201);
 
     const response = await agent
       .post('/auth/register')
-      .send(testUser)
+      .send(authTestUser)
       .expect(409);
 
     expect(response.body.message).toBe('Email is already registered');
   });
 
   it('should login and return a JWT cookie', async () => {
-    await agent.post('/auth/register').send(testUser).expect(201);
+    await agent.post('/auth/register').send(authTestUser).expect(201);
 
     const response = await agent
       .post('/auth/login')
-      .send({ email: testUser.email, password: testUser.password })
+      .send({ email: authTestUser.email, password: authTestUser.password })
       .expect(200);
 
     expect(response.headers['set-cookie']).toBeDefined();

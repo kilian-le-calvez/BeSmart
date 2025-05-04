@@ -105,209 +105,235 @@ describe('TopicService', () => {
       });
       expect(mockPrismaService.topic.create).not.toHaveBeenCalled();
     });
+  });
 
-    describe('findAll', () => {
-      const mockTopics: Topic[] = [
-        topicEntityMock({
-          id: 'topic-id-1',
-          title: 'Topic 1',
-          slug: 'topic-1',
-        }),
-        topicEntityMock({
-          id: 'topic-id-2',
-          title: 'Topic 2',
-          slug: 'topic-2',
-        }),
-      ];
+  describe('findAll', () => {
+    const mockTopics: Topic[] = [
+      topicEntityMock({
+        id: 'topic-id-1',
+        title: 'Topic 1',
+        slug: 'topic-1',
+      }),
+      topicEntityMock({
+        id: 'topic-id-2',
+        title: 'Topic 2',
+        slug: 'topic-2',
+      }),
+    ];
 
-      it('should return all topics', async () => {
-        mockPrismaService.topic.findMany.mockResolvedValue(mockTopics);
+    it('should return all topics', async () => {
+      mockPrismaService.topic.findMany.mockResolvedValue(mockTopics);
 
-        const result = await service.findAll();
+      const result = await service.findAll();
 
-        expect(mockPrismaService.topic.findMany).toHaveBeenCalled();
-        expect(result).toEqual(mockTopics);
+      expect(mockPrismaService.topic.findMany).toHaveBeenCalled();
+      expect(result).toEqual(mockTopics);
+    });
+
+    it('should return an empty array if no topics are found', async () => {
+      mockPrismaService.topic.findMany.mockResolvedValue([]);
+
+      const result = await service.findAll();
+
+      expect(mockPrismaService.topic.findMany).toHaveBeenCalled();
+      expect(result).toEqual([]);
+    });
+  });
+  describe('findOne', () => {
+    const topicId = 'mock-topic-id';
+    const mockTopic: Topic = topicEntityMock();
+
+    it('should return the topic if found', async () => {
+      mockPrismaService.topic.findUnique.mockResolvedValue(mockTopic);
+
+      const result = await service.findOne(topicId);
+
+      expect(mockPrismaService.topic.findUnique).toHaveBeenCalledWith({
+        where: { id: topicId },
+      });
+      expect(result).toEqual(mockTopic);
+    });
+
+    it('should throw NotFoundException if the topic is not found', async () => {
+      mockPrismaService.topic.findUnique.mockResolvedValue(null);
+
+      await expect(service.findOne(topicId)).rejects.toThrow(NotFoundException);
+
+      expect(mockPrismaService.topic.findUnique).toHaveBeenCalledWith({
+        where: { id: topicId },
+      });
+    });
+  });
+  describe('delete', () => {
+    const topicId = 'mock-topic-id';
+    const mockTopic: Topic = topicEntityMock();
+
+    it('should delete the topic and return its title', async () => {
+      mockPrismaService.topic.findUnique.mockResolvedValue(mockTopic);
+      mockPrismaService.topic.delete.mockResolvedValue(mockTopic);
+
+      const result = await service.delete(topicId);
+
+      expect(mockPrismaService.topic.findUnique).toHaveBeenCalledWith({
+        where: { id: topicId },
+      });
+      expect(mockPrismaService.topic.delete).toHaveBeenCalledWith({
+        where: { id: topicId },
+      });
+      expect(result).toEqual(mockTopic.title);
+    });
+
+    it('should throw NotFoundException if the topic is not found', async () => {
+      mockPrismaService.topic.findUnique.mockResolvedValue(null);
+
+      await expect(service.delete(topicId)).rejects.toThrow(NotFoundException);
+
+      expect(mockPrismaService.topic.findUnique).toHaveBeenCalledWith({
+        where: { id: topicId },
+      });
+      expect(mockPrismaService.topic.delete).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('isOwner', () => {
+    const userId = 'mock-user-id';
+    const topicId = 'mock-topic-id';
+
+    it('should return true if the user is the owner of the topic', async () => {
+      mockPrismaService.topic.findUnique.mockResolvedValue({
+        createdById: userId,
       });
 
-      it('should return an empty array if no topics are found', async () => {
-        mockPrismaService.topic.findMany.mockResolvedValue([]);
+      const result = await service.isOwner(userId, topicId);
 
-        const result = await service.findAll();
+      expect(mockPrismaService.topic.findUnique).toHaveBeenCalledWith({
+        where: { id: topicId },
+        select: { createdById: true },
+      });
+      expect(result).toBe(true);
+    });
 
-        expect(mockPrismaService.topic.findMany).toHaveBeenCalled();
-        expect(result).toEqual([]);
+    it('should return false if the user is not the owner of the topic', async () => {
+      mockPrismaService.topic.findUnique.mockResolvedValue({
+        createdById: 'different-user-id',
       });
 
-      describe('findOne', () => {
-        const topicId = 'mock-topic-id';
-        const mockTopic: Topic = topicEntityMock();
+      const result = await service.isOwner(userId, topicId);
 
-        it('should return the topic if found', async () => {
-          mockPrismaService.topic.findUnique.mockResolvedValue(mockTopic);
-
-          const result = await service.findOne(topicId);
-
-          expect(mockPrismaService.topic.findUnique).toHaveBeenCalledWith({
-            where: { id: topicId },
-          });
-          expect(result).toEqual(mockTopic);
-        });
-
-        it('should throw NotFoundException if the topic is not found', async () => {
-          mockPrismaService.topic.findUnique.mockResolvedValue(null);
-
-          await expect(service.findOne(topicId)).rejects.toThrow(
-            NotFoundException,
-          );
-
-          expect(mockPrismaService.topic.findUnique).toHaveBeenCalledWith({
-            where: { id: topicId },
-          });
-        });
-
-        describe('delete', () => {
-          const topicId = 'mock-topic-id';
-          const mockTopic: Topic = topicEntityMock();
-
-          it('should delete the topic and return its title', async () => {
-            mockPrismaService.topic.findUnique.mockResolvedValue(mockTopic);
-            mockPrismaService.topic.delete.mockResolvedValue(mockTopic);
-
-            const result = await service.delete(topicId);
-
-            expect(mockPrismaService.topic.findUnique).toHaveBeenCalledWith({
-              where: { id: topicId },
-            });
-            expect(mockPrismaService.topic.delete).toHaveBeenCalledWith({
-              where: { id: topicId },
-            });
-            expect(result).toEqual(mockTopic.title);
-          });
-
-          it('should throw NotFoundException if the topic is not found', async () => {
-            mockPrismaService.topic.findUnique.mockResolvedValue(null);
-
-            await expect(service.delete(topicId)).rejects.toThrow(
-              NotFoundException,
-            );
-
-            expect(mockPrismaService.topic.findUnique).toHaveBeenCalledWith({
-              where: { id: topicId },
-            });
-            expect(mockPrismaService.topic.delete).not.toHaveBeenCalled();
-          });
-
-          describe('unauthorizedOwner', () => {
-            const userId = 'mock-user-id';
-            const topicId = 'mock-topic-id';
-
-            it('should not throw an exception if the user is the owner', async () => {
-              jest.spyOn(service as any, 'isOwner').mockResolvedValue(true);
-
-              await expect(
-                service.unauthorizedOwner(userId, topicId),
-              ).resolves.not.toThrow();
-
-              expect(service['isOwner']).toHaveBeenCalledWith(userId, topicId);
-            });
-
-            it('should throw ForbiddenException if the user is not the owner', async () => {
-              jest.spyOn(service as any, 'isOwner').mockResolvedValue(false);
-
-              await expect(
-                service.unauthorizedOwner(userId, topicId),
-              ).rejects.toThrow(ForbiddenException);
-
-              expect(service['isOwner']).toHaveBeenCalledWith(userId, topicId);
-            });
-
-            describe('update', () => {
-              const topicId = 'mock-topic-id';
-              const updateTopicDto: UpdateTopicDto = {
-                title: 'Updated Title',
-                description: 'Updated Description',
-                tags: ['updated'],
-              };
-              const mockUpdatedTopic: Topic = topicEntityMock({
-                id: topicId,
-                title: updateTopicDto.title,
-                slug: slugify(updateTopicDto.title),
-                description: updateTopicDto.description,
-                tags: updateTopicDto.tags,
-              });
-
-              it('should update the topic successfully', async () => {
-                mockPrismaService.topic.findUnique.mockResolvedValue(null);
-                mockPrismaService.topic.update.mockResolvedValue(
-                  mockUpdatedTopic,
-                );
-
-                const result = await service.update(topicId, updateTopicDto);
-
-                expect(mockPrismaService.topic.findUnique).toHaveBeenCalledWith(
-                  {
-                    where: { slug: slugify(updateTopicDto.title) },
-                  },
-                );
-                expect(mockPrismaService.topic.update).toHaveBeenCalledWith({
-                  where: { id: topicId },
-                  data: {
-                    ...updateTopicDto,
-                    slug: slugify(updateTopicDto.title),
-                  },
-                });
-                expect(result).toEqual(mockUpdatedTopic);
-              });
-
-              it('should throw ConflictException if a topic with the same slug exists and has a different ID', async () => {
-                const conflictingTopic = topicEntityMock({
-                  id: 'different-id',
-                });
-                mockPrismaService.topic.findUnique.mockResolvedValue(
-                  conflictingTopic,
-                );
-
-                await expect(
-                  service.update(topicId, updateTopicDto),
-                ).rejects.toThrow(ConflictException);
-
-                expect(mockPrismaService.topic.findUnique).toHaveBeenCalledWith(
-                  {
-                    where: { slug: slugify(updateTopicDto.title) },
-                  },
-                );
-                expect(mockPrismaService.topic.update).not.toHaveBeenCalled();
-              });
-
-              it('should update the topic if a topic with the same slug exists but has the same ID', async () => {
-                const existingTopic = topicEntityMock({ id: topicId });
-                mockPrismaService.topic.findUnique.mockResolvedValue(
-                  existingTopic,
-                );
-                mockPrismaService.topic.update.mockResolvedValue(
-                  mockUpdatedTopic,
-                );
-
-                const result = await service.update(topicId, updateTopicDto);
-
-                expect(mockPrismaService.topic.findUnique).toHaveBeenCalledWith(
-                  {
-                    where: { slug: slugify(updateTopicDto.title) },
-                  },
-                );
-                expect(mockPrismaService.topic.update).toHaveBeenCalledWith({
-                  where: { id: topicId },
-                  data: {
-                    ...updateTopicDto,
-                    slug: slugify(updateTopicDto.title),
-                  },
-                });
-                expect(result).toEqual(mockUpdatedTopic);
-              });
-            });
-          });
-        });
+      expect(mockPrismaService.topic.findUnique).toHaveBeenCalledWith({
+        where: { id: topicId },
+        select: { createdById: true },
       });
+      expect(result).toBe(false);
+    });
+
+    it('should throw NotFoundException if the topic is not found', async () => {
+      mockPrismaService.topic.findUnique.mockResolvedValue(null);
+
+      await expect(service.isOwner(userId, topicId)).rejects.toThrow(
+        NotFoundException,
+      );
+
+      expect(mockPrismaService.topic.findUnique).toHaveBeenCalledWith({
+        where: { id: topicId },
+        select: { createdById: true },
+      });
+    });
+  });
+
+  describe('unauthorizedOwner', () => {
+    const userId = 'mock-user-id';
+    const topicId = 'mock-topic-id';
+
+    it('should not throw an exception if the user is the owner', async () => {
+      service.isOwner = jest.fn().mockResolvedValue(true);
+
+      await expect(
+        service.unauthorizedOwner(userId, topicId),
+      ).resolves.not.toThrow();
+
+      expect(service.isOwner).toHaveBeenCalledWith(userId, topicId);
+    });
+
+    it('should throw ForbiddenException if the user is not the owner', async () => {
+      service.isOwner = jest.fn().mockResolvedValue(false);
+
+      await expect(service.unauthorizedOwner(userId, topicId)).rejects.toThrow(
+        ForbiddenException,
+      );
+
+      expect(service.isOwner).toHaveBeenCalledWith(userId, topicId);
+    });
+  });
+
+  describe('update', () => {
+    const topicId = 'mock-topic-id';
+    const updateTopicDto: UpdateTopicDto = {
+      title: 'Updated Title',
+      description: 'Updated Description',
+      tags: ['updated'],
+    };
+    const mockUpdatedTopic: Topic = topicEntityMock({
+      id: topicId,
+      title: updateTopicDto.title,
+      slug: slugify(updateTopicDto.title),
+      description: updateTopicDto.description,
+      tags: updateTopicDto.tags,
+    });
+
+    it('should update the topic successfully', async () => {
+      mockPrismaService.topic.findUnique.mockResolvedValue(null);
+      mockPrismaService.topic.update.mockResolvedValue(mockUpdatedTopic);
+
+      const result = await service.update(topicId, updateTopicDto);
+
+      expect(mockPrismaService.topic.findUnique).toHaveBeenCalledWith({
+        where: { slug: slugify(updateTopicDto.title) },
+      });
+      expect(mockPrismaService.topic.update).toHaveBeenCalledWith({
+        where: { id: topicId },
+        data: {
+          ...updateTopicDto,
+          slug: slugify(updateTopicDto.title),
+        },
+      });
+      expect(result).toEqual(mockUpdatedTopic);
+    });
+
+    it('should throw ConflictException if a topic with the same slug exists and has a different ID', async () => {
+      const conflictingTopic = topicEntityMock({
+        id: 'different-id',
+      });
+      mockPrismaService.topic.findUnique.mockResolvedValue(conflictingTopic);
+
+      await expect(service.update(topicId, updateTopicDto)).rejects.toThrow(
+        ConflictException,
+      );
+
+      expect(mockPrismaService.topic.findUnique).toHaveBeenCalledWith({
+        where: { slug: slugify(updateTopicDto.title) },
+      });
+      expect(mockPrismaService.topic.update).not.toHaveBeenCalled();
+    });
+
+    it('should update the topic if a topic with the same slug exists but has the same ID', async () => {
+      const existingTopic = topicEntityMock({ id: topicId });
+      mockPrismaService.topic.findUnique.mockResolvedValue(existingTopic);
+      mockPrismaService.topic.update.mockResolvedValue(mockUpdatedTopic);
+
+      const result = await service.update(topicId, updateTopicDto);
+
+      expect(mockPrismaService.topic.findUnique).toHaveBeenCalledWith({
+        where: { slug: slugify(updateTopicDto.title) },
+      });
+      expect(mockPrismaService.topic.update).toHaveBeenCalledWith({
+        where: { id: topicId },
+        data: {
+          ...updateTopicDto,
+          slug: slugify(updateTopicDto.title),
+        },
+      });
+      expect(result).toEqual(mockUpdatedTopic);
     });
   });
 });

@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AuthService } from './auth.service';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../prisma/prisma.service';
-import { UnauthorizedException } from '@nestjs/common';
+import { ConflictException, UnauthorizedException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 
 // Mock the dependencies
@@ -30,6 +30,7 @@ describe('AuthService', () => {
     }).compile();
 
     service = module.get<AuthService>(AuthService);
+    jest.clearAllMocks();
   });
 
   it('should be defined', () => {
@@ -37,12 +38,13 @@ describe('AuthService', () => {
   });
 
   describe('register', () => {
+    const registerDto = {
+      username: 'test',
+      email: 'test@example.com',
+      password: 'password',
+    };
+
     it('should successfully register a user and return a success message', async () => {
-      const registerDto = {
-        username: 'test',
-        email: 'test@example.com',
-        password: 'password',
-      };
       const mockCreate = jest.fn().mockResolvedValue({
         email: registerDto.email,
       });
@@ -58,6 +60,16 @@ describe('AuthService', () => {
           password: expect.any(String),
         },
       });
+    });
+
+    it('should throw ConflictException if email already exists', async () => {
+      mockPrismaService.user.findUnique = jest.fn().mockResolvedValue({
+        email: registerDto.email,
+      });
+
+      await expect(service.register(registerDto)).rejects.toThrow(
+        ConflictException,
+      );
     });
   });
 

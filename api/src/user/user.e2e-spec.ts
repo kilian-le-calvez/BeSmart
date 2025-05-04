@@ -1,4 +1,4 @@
-import { cleanupExampleUsers, SetupE2e, setupE2ETest } from '@tests/e2e-setup';
+import { cleanupE2ESetup, SetupE2e, setupE2ETest } from '@tests/e2e-setup';
 
 describe('UserController (e2e)', () => {
   let setup: SetupE2e;
@@ -8,9 +8,7 @@ describe('UserController (e2e)', () => {
   });
 
   afterAll(async () => {
-    // Clean up any test data after tests are finished
-    cleanupExampleUsers(setup.prisma);
-    await setup.app.close();
+    await cleanupE2ESetup(setup);
   });
 
   it('GET /users/me should return the current user details', async () => {
@@ -18,7 +16,7 @@ describe('UserController (e2e)', () => {
     const response = await setup.agent.get('/users/me').expect(200);
 
     // Validate the response
-    expect(response.body.email).toBe(setup.testUser.email);
+    expect(response.body.email).toBe(setup.e2eUser.email);
   });
 
   it('GET /users should return all users', async () => {

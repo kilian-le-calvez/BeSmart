@@ -3,7 +3,7 @@ import { applyDecorators } from '@nestjs/common';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { UserResponse } from './user.response';
 
-export function UserGetMeSwagger() {
+export function UserGetMeSwagger(): MethodDecorator & ClassDecorator {
   return applyDecorators(
     ApiOperation({ summary: 'Get current authenticated user' }),
     ApiResponse({
@@ -14,7 +14,7 @@ export function UserGetMeSwagger() {
   );
 }
 
-export function UserFindAllSwagger() {
+export function UserFindAllSwagger(): MethodDecorator & ClassDecorator {
   return applyDecorators(
     ApiOperation({ summary: 'Get all users' }),
     ApiResponse({

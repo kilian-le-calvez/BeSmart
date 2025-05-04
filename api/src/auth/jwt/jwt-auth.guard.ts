@@ -30,6 +30,20 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     if (isPublic) {
       return true;
     }
+    return this.handleAuth(context);
+  }
+
+  /**
+   * Handles the authentication process for the given execution context.
+   * This method delegates the authentication logic to the parent class's
+   * `canActivate` method.
+   *
+   * @param context - The execution context that provides details about the
+   * current request being processed.
+   * @returns A boolean or a Promise resolving to a boolean indicating whether
+   * the request is authorized.
+   */
+  protected handleAuth(context: ExecutionContext) {
     return super.canActivate(context);
   }
 
@@ -40,16 +54,10 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
    * @param {Error | string | undefined} info
    * @returns The `user` object is being returned.
    */
-  handleRequest(
-    err: VerifyErrors | null,
-    user: any,
-    info: Error | string | undefined,
-  ) {
+  handleRequest(err: VerifyErrors | null, user: any) {
     if (err || !user) {
-      console.error('JWT Guard Error:', err || info);
-      throw (
-        err ||
-        new UnauthorizedException('Unauthorized. Invalid or expired token.')
+      throw new UnauthorizedException(
+        'Unauthorized. Invalid or expired token.',
       );
     }
     return user;

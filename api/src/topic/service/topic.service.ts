@@ -114,7 +114,7 @@ export class TopicService {
    * @returns A promise that resolves to `true` if the user is the owner of the topic, otherwise `false`.
    * @throws NotFoundException - If the topic with the specified ID does not exist.
    */
-  private async isOwner(userId: string, topicId: string): Promise<boolean> {
+  public async isOwner(userId: string, topicId: string): Promise<boolean> {
     const topic = await this.prisma.topic.findUnique({
       where: { id: topicId },
       select: { createdById: true },

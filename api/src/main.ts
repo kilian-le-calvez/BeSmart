@@ -18,7 +18,7 @@ export class WithoutUnusedLogger extends ConsoleLogger {
   }
 }
 
-async function bootstrap() {
+export async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     logger: new WithoutUnusedLogger(),
   });
@@ -58,8 +58,8 @@ async function bootstrap() {
   // Swagger setup
   const config = new DocumentBuilder()
     .setTitle('BeSmart API')
-    .setDescription('Auth and user system')
-    .setVersion('1.0')
+    .setDescription('Auth, Users, Topics, Threads, Contributions...')
+    .setVersion('1.1')
     .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, config);
@@ -68,4 +68,5 @@ async function bootstrap() {
 
   await app.listen(3000);
 }
+
 bootstrap();

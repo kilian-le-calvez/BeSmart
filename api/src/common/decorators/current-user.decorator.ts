@@ -1,3 +1,4 @@
+// File is excluded from test coverage
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 import { ApiProperty } from '@nestjs/swagger';
 

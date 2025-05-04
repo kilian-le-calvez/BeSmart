@@ -49,7 +49,15 @@ describe('AuthController', () => {
   });
 
   describe('login', () => {
-    it('should call AuthService.login, set cookie, and return success message', async () => {
+    const originalEnv = process.env.NODE_ENV;
+
+    afterEach(() => {
+      process.env.NODE_ENV = originalEnv; // Reset after each test
+    });
+
+    it('should set a secure cookie when NODE_ENV is production', async () => {
+      process.env.NODE_ENV = 'production'; // Simulate prod
+
       const dto: LoginDto = { email: 'test@example.com', password: 'pass' };
       const mockJwt = 'mock-jwt-token';
       const mockRes: Partial<Response> = {
@@ -60,12 +68,37 @@ describe('AuthController', () => {
 
       const response = await controller.login(dto, mockRes as Response);
 
-      expect(mockAuthService.login).toHaveBeenCalledWith(dto);
       expect(mockRes.cookie).toHaveBeenCalledWith(
         'jwt',
         mockJwt,
         expect.objectContaining({
           httpOnly: true,
+          secure: true,
+          sameSite: 'lax',
+        }),
+      );
+      expect(response).toEqual({ message: 'Login successful', jwt: mockJwt });
+    });
+
+    it('should set a non-secure cookie when NODE_ENV is not production', async () => {
+      process.env.NODE_ENV = 'development'; // Simulate dev
+
+      const dto: LoginDto = { email: 'test@example.com', password: 'pass' };
+      const mockJwt = 'mock-jwt-token';
+      const mockRes: Partial<Response> = {
+        cookie: jest.fn(),
+      };
+
+      mockAuthService.login.mockResolvedValue(mockJwt);
+
+      const response = await controller.login(dto, mockRes as Response);
+
+      expect(mockRes.cookie).toHaveBeenCalledWith(
+        'jwt',
+        mockJwt,
+        expect.objectContaining({
+          httpOnly: true,
+          secure: false,
           sameSite: 'lax',
         }),
       );

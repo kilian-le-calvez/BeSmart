@@ -135,6 +135,7 @@ export class TopicController {
   ): Promise<MessageResponse> {
     // Check if the user is the owner of the topic
     await this.topicService.unauthorizedOwner(user.id, id);
+    console.log('user.id', user.id);
 
     const titleTopicDeleted = await this.topicService.delete(id);
     return {
