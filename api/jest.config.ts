@@ -18,5 +18,6 @@ export default {
     '^@topic/(.*)$': '<rootDir>/src/topic/$1',
     '^@thread/(.*)$': '<rootDir>/src/thread/$1',
     '^@contribution/(.*)$': '<rootDir>/src/contribution/$1',
+    '^@tests/(.*)$': '<rootDir>/tests/$1',
   },
 };

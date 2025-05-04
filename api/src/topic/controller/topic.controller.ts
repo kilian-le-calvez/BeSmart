@@ -31,6 +31,9 @@ import { JWTUnauthorizedSwagger } from '@common/swagger/jwt-unauthorized.swagger
 @JWTUnauthorizedSwagger()
 @UseGuards(JwtAuthGuard)
 @Controller('topics')
+/**
+ * @throws {UnauthorizedException} If the user is not authenticated.
+ */
 export class TopicController {
   constructor(private readonly topicService: TopicService) {}
 
@@ -43,9 +46,7 @@ export class TopicController {
    * @param user - The currently authenticated user initiating the topic creation.
    * @returns A promise that resolves to a `BaseResponse` containing the created topic's details.
    *
-   * @throws {BadRequestException} If the provided data is invalid.
-   * @throws {UnauthorizedException} If the user is not authenticated.
-   * @throws {InternalServerErrorException} If an unexpected error occurs during topic creation.
+   * @throws {ConflictException} If topic with same title exists.
    */
   async create(
     @Body() createTopicDto: CreateTopicDto,

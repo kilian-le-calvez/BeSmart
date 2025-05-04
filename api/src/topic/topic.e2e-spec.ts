@@ -1,36 +1,44 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
-import * as request from 'supertest';
-import { AppModule } from '@app/app.module';
+import { cleanupE2ESetup, SetupE2e, setupE2ETest } from '@tests/e2e-setup';
+import { slugify } from '@common/helpers/slugify';
+
+const testTopicDto = {
+  title: 'The Philosophy of Stoicism e2example',
+  description:
+    'An exploration of ancient Stoic principles and their modern relevance.',
+  tags: ['philosophy', 'stoicism', 'ethics'],
+};
+
+const testTopicUpdateDto = {
+  title: 'The magic of life e2example',
+  description: 'An exploration of hearth life and beauty of the world.',
+  tags: ['life', 'beauty', 'world'],
+};
 
 describe('Topics (e2e)', () => {
-  let app: INestApplication;
+  let setup: SetupE2e;
 
   beforeAll(async () => {
-    const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AppModule],
-    }).compile();
-
-    app = moduleFixture.createNestApplication();
-    await app.init();
-  });
-
-  it('/topics (POST)', async () => {
-    const token = 'YOUR_VALID_JWT'; // replace with your test auth
-    const res = await request(app.getHttpServer())
-      .post('/topics')
-      .set('Authorization', `Bearer ${token}`)
-      .send({
-        title: 'First Test Topic',
-        description: 'This is a test topic.',
-        tags: ['testing', 'e2e'],
-      });
-
-    expect(res.status).toBe(201);
-    expect(res.body.title).toEqual('First Test Topic');
+    setup = await setupE2ETest();
   });
 
   afterAll(async () => {
-    await app.close();
+    cleanupE2ESetup(setup);
+  });
+
+  describe('POST /topics (create)', () => {
+    it('should create a new topic', async () => {
+      const response = await setup.agent
+        .post('/topics')
+        .send(testTopicDto)
+        .expect(201);
+
+      expect(response.body.message).toEqual('Topic created successfully');
+      expect(response.body.data.title).toEqual(testTopicDto.title);
+      expect(response.body.data.slug).toEqual(slugify(testTopicDto.title));
+    });
+
+    it('should conflict on title topic', async () => {
+      await setup.agent.post('/topics').send(testTopicDto).expect(409);
+    });
   });
 });

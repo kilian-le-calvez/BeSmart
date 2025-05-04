@@ -18,7 +18,8 @@
       "@user/*": ["src/user/*"],
       "@topic/*": ["src/topic/*"],
       "@thread/*": ["src/thread/*"],
-      "@contribution/*": ["src/contribution/*"]
+      "@contribution/*": ["src/contribution/*"],
+      "@tests/*": ["tests/*"]
     },
     "incremental": true,
     "skipLibCheck": true,
