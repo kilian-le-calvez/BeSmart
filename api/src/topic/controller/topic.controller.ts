@@ -21,6 +21,7 @@ import { UpdateTopicDto } from '@topic/dto/update-topic.dto';
 import {
   TopicCreateSwagger,
   TopicDeleteSwagger,
+  TopicFindAllMeSwagger,
   TopicFindAllSwagger,
   TopicFindOneSwagger,
   TopicUpdateSwagger,
@@ -71,6 +72,28 @@ export class TopicController {
    */
   async findAll(): Promise<BaseResponse<TopicResponse[]>> {
     const listTopics = await this.topicService.findAll();
+    return {
+      message: 'List of topics',
+      data: listTopics,
+    };
+  }
+
+  @Get('me')
+  @TopicFindAllMeSwagger()
+  /**
+   * Retrieves all topics associated with the currently authenticated user.
+   *
+   * @param userId - The ID of the currently authenticated user, injected via the `@CurrentUser` decorator.
+   * @returns A promise that resolves to a `BaseResponse` containing an array of `TopicResponse` objects.
+   *
+   * @remarks
+   * This method fetches topics by delegating to the `topicService.findAllByUserId` method.
+   * The response includes a message and the list of topics.
+   */
+  async findAllByMe(
+    @CurrentUser() user: User,
+  ): Promise<BaseResponse<TopicResponse[]>> {
+    const listTopics = await this.topicService.findAllByUserId(user.id);
     return {
       message: 'List of topics',
       data: listTopics,

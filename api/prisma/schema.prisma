@@ -8,7 +8,7 @@ datasource db {
 generator client {
   provider             = "prisma-client-js"
   referentialIntegrity = "foreignKeys"
-  output = "node_modules/@prisma/client" // Recommended default path
+  output               = "../node_modules/.prisma/client" // Default path in node_modules
 }
 
 model User {
@@ -39,6 +39,7 @@ model Topic {
 
 model Thread {
   id             String         @id @default(uuid())
+  slug           String         @unique
   title          String
   starterMessage String
   topicId        String

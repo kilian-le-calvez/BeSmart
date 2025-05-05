@@ -1,8 +1,11 @@
+import { slugify } from '@common/helpers/slugify';
 import { PrismaClient } from '@prisma/client';
+
+const EXIT_ERROR = 1;
 
 const prisma = new PrismaClient();
 
-async function main() {
+async function main(): Promise<void> {
   // Create a User
   const user = await prisma.user.create({
     data: {
@@ -25,6 +28,7 @@ async function main() {
   // Create a Thread
   const thread = await prisma.thread.create({
     data: {
+      slug: slugify('The Future of AI'),
       title: 'The Future of AI',
       starterMessage: 'Where do you think AI will be in 10 years?',
       createdById: user.id,
@@ -49,5 +53,5 @@ main()
   .catch(async (e) => {
     console.error(e);
     await prisma.$disconnect();
-    process.exit(1);
+    process.exit(EXIT_ERROR);
   });

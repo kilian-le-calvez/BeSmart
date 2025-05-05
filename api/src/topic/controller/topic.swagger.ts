@@ -7,7 +7,9 @@ import { applyDecorators } from '@nestjs/common';
 import { ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
 import { TopicResponse } from '@topic/topic.response';
 
-export function TopicCreateSwagger() {
+type ApplyDecorators = ReturnType<typeof applyDecorators>;
+
+export function TopicCreateSwagger(): ApplyDecorators {
   return applyDecorators(
     ApiOperation({ summary: 'Create a new topic' }),
     ApiResponse({
@@ -22,7 +24,7 @@ export function TopicCreateSwagger() {
   );
 }
 
-export function TopicFindAllSwagger() {
+export function TopicFindAllSwagger(): ApplyDecorators {
   return applyDecorators(
     ApiOperation({ summary: 'Get all topics' }),
     ApiResponse({
@@ -33,7 +35,18 @@ export function TopicFindAllSwagger() {
   );
 }
 
-export function TopicFindOneSwagger() {
+export function TopicFindAllMeSwagger(): ApplyDecorators {
+  return applyDecorators(
+    ApiOperation({ summary: 'Get all connected user topics' }),
+    ApiResponse({
+      status: 200,
+      description: 'List of topics',
+      type: [TopicResponse],
+    }),
+  );
+}
+
+export function TopicFindOneSwagger(): ApplyDecorators {
   return applyDecorators(
     ApiOperation({ summary: 'Get a topic by ID' }),
     ApiParam({ name: 'id', description: 'Topic ID' }),
@@ -50,7 +63,7 @@ export function TopicFindOneSwagger() {
   );
 }
 
-export function TopicUpdateSwagger() {
+export function TopicUpdateSwagger(): ApplyDecorators {
   return applyDecorators(
     ApiOperation({ summary: 'Update a topic (only by owner)' }),
     ApiParam({ name: 'id', description: 'Topic ID' }),
@@ -72,7 +85,7 @@ export function TopicUpdateSwagger() {
   );
 }
 
-export function TopicDeleteSwagger() {
+export function TopicDeleteSwagger(): ApplyDecorators {
   return applyDecorators(
     ApiOperation({ summary: 'Delete a topic (only by owner)' }),
     ApiParam({ name: 'id', description: 'Topic ID' }),

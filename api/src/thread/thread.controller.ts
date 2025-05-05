@@ -18,6 +18,7 @@ import { User } from '@prisma/client';
 import { ThreadResponse } from './thread.response';
 import { BaseResponse } from '@common/response/base.response';
 import { MessageResponse } from '@common/response/message.response';
+import { ThreadCreateSwagger } from './thread.swagger';
 
 @ApiTags('threads')
 @ApiBearerAuth()
@@ -27,6 +28,14 @@ export class ThreadController {
   constructor(private readonly threadService: ThreadService) {}
 
   @Post()
+  @ThreadCreateSwagger()
+  /**
+   * Creates a new thread using the provided data and the current user.
+   *
+   * @param createThreadDto - The data transfer object containing the details for the new thread.
+   * @param user - The currently authenticated user creating the thread.
+   * @returns A promise that resolves to a base response containing the created thread details.
+   */
   async create(
     @Body() createThreadDto: CreateThreadDto,
     @CurrentUser() user: User,

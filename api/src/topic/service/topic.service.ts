@@ -46,8 +46,21 @@ export class TopicService {
    *
    * @returns A promise that resolves to an array of topics.
    */
-  async findAll() {
+  async findAll(): Promise<Topic[]> {
     return this.prisma.topic.findMany();
+  }
+
+  /**
+   * Retrieves all topics created by a specific user.
+   *
+   * @param userId - The ID of the user whose topics to retrieve.
+   * @returns A promise that resolves to an array of topics created by the specified user.
+   */
+  async findAllByUserId(userId: string): Promise<Topic[]> {
+    return this.prisma.topic.findMany({
+      where: { createdById: userId },
+      orderBy: { createdAt: 'desc' },
+    });
   }
 
   /**
@@ -56,7 +69,7 @@ export class TopicService {
    * @param id - The unique identifier of the topic to retrieve.
    * @returns A promise that resolves to the topic object if found, or `null` if no topic exists with the given ID.
    */
-  async findOne(id: string) {
+  async findOne(id: string): Promise<Topic> {
     const topicFound = await this.prisma.topic.findUnique({ where: { id } });
     if (!topicFound) {
       throw new NotFoundException('Topic not found');
@@ -74,7 +87,7 @@ export class TopicService {
    *
    * @returns A promise that resolves to the updated topic.
    */
-  async update(id: string, dto: UpdateTopicDto) {
+  async update(id: string, dto: UpdateTopicDto): Promise<Topic> {
     const slug = slugify(dto.title);
     const existing = await this.prisma.topic.findUnique({ where: { slug } });
     if (existing && existing.id !== id) {
@@ -98,7 +111,7 @@ export class TopicService {
    * @returns The title of the deleted topic.
    * @throws NotFoundException - If no topic is found with the given identifier.
    */
-  async delete(id: string) {
+  async delete(id: string): Promise<string> {
     const topicFound = await this.prisma.topic.findUnique({ where: { id } });
     if (!topicFound) {
       throw new NotFoundException('Topic not found');

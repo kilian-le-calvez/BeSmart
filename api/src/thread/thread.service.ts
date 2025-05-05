@@ -8,6 +8,7 @@ import { UpdateThreadDto } from './dto/update-thread.dto';
 import { User } from '@prisma/client';
 import { PrismaService } from '@prisma-api/prisma.service';
 import { ThreadResponse } from './thread.response';
+import { slugify } from '@common/helpers/slugify';
 
 @Injectable()
 export class ThreadService {
@@ -23,12 +24,27 @@ export class ThreadService {
     });
     if (!topic) throw new NotFoundException('Topic not found');
 
+    const baseSlug = slugify(createThreadDto.title);
+    let slug = baseSlug;
+    let counter = 1;
+
+    // Check for existing slugs and increment if necessary
+    while (await this.prisma.thread.findUnique({ where: { slug } })) {
+      slug = `${baseSlug}-${counter}`;
+      counter++;
+    }
+
     return this.prisma.thread.create({
       data: {
+        slug,
         title: createThreadDto.title,
         starterMessage: createThreadDto.starterMessage,
         createdById: user.id,
         topicId: createThreadDto.topicId,
+        viewsCount: 0,
+        repliesCount: 0,
+        pinned: false,
+        category: createThreadDto.category,
       },
     });
   }

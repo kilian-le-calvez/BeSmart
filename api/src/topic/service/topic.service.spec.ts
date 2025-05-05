@@ -336,4 +336,46 @@ describe('TopicService', () => {
       expect(result).toEqual(mockUpdatedTopic);
     });
   });
+
+  describe('findAllByUserId', () => {
+    const userId = 'mock-user-id';
+    const mockTopics: Topic[] = [
+      topicEntityMock({
+        id: 'topic-id-1',
+        title: 'Topic 1',
+        slug: 'topic-1',
+        createdById: userId,
+      }),
+      topicEntityMock({
+        id: 'topic-id-2',
+        title: 'Topic 2',
+        slug: 'topic-2',
+        createdById: userId,
+      }),
+    ];
+
+    it('should return all topics created by the specified user', async () => {
+      mockPrismaService.topic.findMany.mockResolvedValue(mockTopics);
+
+      const result = await service.findAllByUserId(userId);
+
+      expect(mockPrismaService.topic.findMany).toHaveBeenCalledWith({
+        where: { createdById: userId },
+        orderBy: { createdAt: 'desc' },
+      });
+      expect(result).toEqual(mockTopics);
+    });
+
+    it('should return an empty array if the user has no topics', async () => {
+      mockPrismaService.topic.findMany.mockResolvedValue([]);
+
+      const result = await service.findAllByUserId(userId);
+
+      expect(mockPrismaService.topic.findMany).toHaveBeenCalledWith({
+        where: { createdById: userId },
+        orderBy: { createdAt: 'desc' },
+      });
+      expect(result).toEqual([]);
+    });
+  });
 });

@@ -294,4 +294,39 @@ describe('TopicController', () => {
       );
     });
   });
+
+  describe('findAllByMe', () => {
+    it('should return a list of topics for the current user', async () => {
+      const mockUserId = 'user-id';
+      const mockTopics = [
+        { id: 'topic1', title: 'Topic 1', description: 'Description 1' },
+        { id: 'topic2', title: 'Topic 2', description: 'Description 2' },
+      ];
+
+      mockTopicService.findAllByUserId = jest
+        .fn()
+        .mockResolvedValue(mockTopics);
+
+      const result = await controller.findAllByMe(mockUserId);
+
+      expect(mockTopicService.findAllByUserId).toHaveBeenCalledWith(mockUserId);
+      expect(result).toEqual({
+        message: 'List of topics',
+        data: mockTopics,
+      });
+    });
+
+    it('should throw an error if fetching topics for the user fails', async () => {
+      const mockUserId = 'user-id';
+
+      mockTopicService.findAllByUserId = jest
+        .fn()
+        .mockRejectedValue(new Error('Fetch failed'));
+
+      await expect(controller.findAllByMe(mockUserId)).rejects.toThrow(
+        'Fetch failed',
+      );
+      expect(mockTopicService.findAllByUserId).toHaveBeenCalledWith(mockUserId);
+    });
+  });
 });
