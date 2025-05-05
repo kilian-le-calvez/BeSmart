@@ -8,6 +8,7 @@ datasource db {
 generator client {
   provider             = "prisma-client-js"
   referentialIntegrity = "foreignKeys"
+  output = "node_modules/@prisma/client" // Recommended default path
 }
 
 model User {
