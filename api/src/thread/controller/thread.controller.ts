@@ -8,20 +8,26 @@ import {
   Body,
   UseGuards,
 } from '@nestjs/common';
-import { ThreadService } from './thread.service';
-import { CreateThreadDto } from './dto/create-thread.dto';
-import { UpdateThreadDto } from './dto/update-thread.dto';
-import { CurrentUser } from '@common/decorators/current-user.decorator';
-import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
+import {
+  CurrentUser,
+  CurrentUserRequest,
+} from '@common/decorators/current-user.decorator';
+import { ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '@auth/jwt/jwt-auth.guard';
-import { User } from '@prisma/client';
-import { ThreadResponse } from './thread.response';
 import { BaseResponse } from '@common/response/base.response';
 import { MessageResponse } from '@common/response/message.response';
-import { ThreadCreateSwagger } from './thread.swagger';
+import { JWTUnauthorizedSwagger } from '@common/swagger/jwt-unauthorized.swagger';
+import { ThreadService } from '@thread/service/thread.service';
+import { ThreadResponse } from '@thread/response/thread.response';
+import {
+  ThreadCreateSwagger,
+  ThreadFindByTopicSwagger,
+} from '@thread/thread.swagger';
+import { CreateThreadDto } from '@thread/dto/create-thread.dto';
+import { UpdateThreadDto } from '@thread/dto/update-thread.dto';
 
 @ApiTags('threads')
-@ApiBearerAuth()
+@JWTUnauthorizedSwagger()
 @UseGuards(JwtAuthGuard)
 @Controller('threads')
 export class ThreadController {
@@ -38,16 +44,27 @@ export class ThreadController {
    */
   async create(
     @Body() createThreadDto: CreateThreadDto,
-    @CurrentUser() user: User,
+    @CurrentUser() user: CurrentUserRequest,
   ): Promise<BaseResponse<ThreadResponse>> {
-    const threadCreate = await this.threadService.create(createThreadDto, user);
+    const threadCreate = await this.threadService.create(
+      createThreadDto,
+      user.id,
+    );
     return {
       message: 'Thread created successfully',
       data: threadCreate,
     };
   }
 
-  @Get('topic/:topicId')
+  @Get('by-topic/:topicId')
+  @ThreadFindByTopicSwagger()
+  /**
+   * Retrieves a list of threads associated with a specific topic.
+   *
+   * @param topicId - The unique identifier of the topic for which threads are to be retrieved.
+   * @returns A promise that resolves to a `BaseResponse` containing an array of `ThreadResponse` objects.
+   *          The response includes a message indicating the operation's success and the data containing the threads.
+   */
   async findByTopic(
     @Param('topicId') topicId: string,
   ): Promise<BaseResponse<ThreadResponse[]>> {
@@ -74,12 +91,12 @@ export class ThreadController {
   async update(
     @Param('id') id: string,
     @Body() updateThreadDto: UpdateThreadDto,
-    @CurrentUser() user: User,
+    @CurrentUser() user: CurrentUserRequest,
   ): Promise<BaseResponse<ThreadResponse>> {
     const threadUpdated = await this.threadService.update(
       id,
       updateThreadDto,
-      user,
+      user.id,
     );
     return {
       message: 'Thread updated successfully',
@@ -90,9 +107,9 @@ export class ThreadController {
   @Delete(':id')
   async remove(
     @Param('id') id: string,
-    @CurrentUser() user: User,
+    @CurrentUser() user: CurrentUserRequest,
   ): Promise<MessageResponse> {
-    const threadDeleted = await this.threadService.remove(id, user);
+    const threadDeleted = await this.threadService.remove(id, user.id);
     return {
       message: 'Thread deleted successfully: ' + threadDeleted.title,
     };

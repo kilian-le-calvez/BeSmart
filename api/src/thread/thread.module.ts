@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
-import { ThreadService } from './thread.service';
-import { ThreadController } from './thread.controller';
 import { PrismaModule } from '@prisma-api/prisma.module';
+import { ThreadController } from './controller/thread.controller';
+import { ThreadService } from './service/thread.service';
 
 @Module({
   imports: [PrismaModule],

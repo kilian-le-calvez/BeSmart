@@ -3,12 +3,11 @@ import {
   NotFoundException,
   ForbiddenException,
 } from '@nestjs/common';
-import { CreateThreadDto } from './dto/create-thread.dto';
-import { UpdateThreadDto } from './dto/update-thread.dto';
-import { User } from '@prisma/client';
 import { PrismaService } from '@prisma-api/prisma.service';
-import { ThreadResponse } from './thread.response';
 import { slugify } from '@common/helpers/slugify';
+import { ThreadResponse } from '@thread/response/thread.response';
+import { CreateThreadDto } from '@thread/dto/create-thread.dto';
+import { UpdateThreadDto } from '@thread/dto/update-thread.dto';
 
 @Injectable()
 export class ThreadService {
@@ -16,7 +15,7 @@ export class ThreadService {
 
   async create(
     createThreadDto: CreateThreadDto,
-    user: User,
+    userId: string,
   ): Promise<ThreadResponse> {
     // Check topic exists
     const topic = await this.prisma.topic.findUnique({
@@ -39,7 +38,7 @@ export class ThreadService {
         slug,
         title: createThreadDto.title,
         starterMessage: createThreadDto.starterMessage,
-        createdById: user.id,
+        createdById: userId,
         topicId: createThreadDto.topicId,
         viewsCount: 0,
         repliesCount: 0,
@@ -50,6 +49,13 @@ export class ThreadService {
   }
 
   async findByTopic(topicId: string): Promise<ThreadResponse[]> {
+    // Check topic exists
+    const topic = await this.prisma.topic.findUnique({
+      where: { id: topicId },
+    });
+    if (!topic) throw new NotFoundException('Topic not found');
+
+    // Fetch threads for the topic
     return this.prisma.thread.findMany({
       where: { topicId },
       orderBy: { createdAt: 'desc' },
@@ -65,10 +71,10 @@ export class ThreadService {
   async update(
     id: string,
     updateThreadDto: UpdateThreadDto,
-    user: User,
+    userId: string,
   ): Promise<ThreadResponse> {
     const thread = await this.findOne(id);
-    if (thread.createdById !== user.id) {
+    if (thread.createdById !== userId) {
       throw new ForbiddenException('You can only edit your own thread.');
     }
 
@@ -78,9 +84,9 @@ export class ThreadService {
     });
   }
 
-  async remove(id: string, user: User): Promise<ThreadResponse> {
+  async remove(id: string, userId: string): Promise<ThreadResponse> {
     const thread = await this.findOne(id);
-    if (thread.createdById !== user.id) {
+    if (thread.createdById !== userId) {
       throw new ForbiddenException('You can only delete your own thread.');
     }
 

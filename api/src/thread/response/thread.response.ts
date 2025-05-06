@@ -5,11 +5,8 @@ export class ThreadResponse {
   @ApiProperty({ example: 'a1b2c3d4-e5f6-7890-abcd-1234567890ef' })
   id: string;
 
-  @ApiProperty({ example: '2025-05-01T10:00:00.000Z' })
-  createdAt: Date;
-
-  @ApiProperty({ example: '2025-05-02T12:30:00.000Z' })
-  updatedAt: Date;
+  @ApiProperty({ example: 'why-learning-culture-matters' })
+  slug: string;
 
   @ApiProperty({ example: 'Why learning culture matters' })
   title: string;
@@ -36,4 +33,10 @@ export class ThreadResponse {
 
   @ApiProperty({ enum: ThreadCategory, example: ThreadCategory.QUESTION })
   category: ThreadCategory;
+
+  @ApiProperty({ example: '2025-05-01T10:00:00.000Z' })
+  createdAt: Date;
+
+  @ApiProperty({ example: '2025-05-02T12:30:00.000Z' })
+  updatedAt: Date;
 }

@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ThreadController } from './thread.controller';
-import { ThreadService } from './thread.service';
+import { ThreadService } from '@thread/service/thread.service';
 
 describe('ThreadController', () => {
   let controller: ThreadController;
@@ -12,7 +12,7 @@ describe('ThreadController', () => {
       // For example:
       // findAll: jest.fn(),
       // findById: jest.fn(),
-      // create: jest.fn(),
+      create: jest.fn(),
       // update: jest.fn(),
       // delete: jest.fn(),
       // etc.

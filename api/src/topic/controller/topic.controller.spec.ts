@@ -5,6 +5,7 @@ import { User } from '@prisma/client';
 import { ForbiddenException } from '@nestjs/common';
 import { TopicResponse } from '@topic/topic.response';
 import { BaseResponse } from '@common/response/base.response';
+import { CurrentUserRequest } from '@common/decorators/current-user.decorator';
 
 describe('TopicController', () => {
   let controller: TopicController;
@@ -297,7 +298,10 @@ describe('TopicController', () => {
 
   describe('findAllByMe', () => {
     it('should return a list of topics for the current user', async () => {
-      const mockUserId = 'user-id';
+      const mockUser = {
+        id: 'user-id',
+        email: 'user@email.com',
+      } as CurrentUserRequest;
       const mockTopics = [
         { id: 'topic1', title: 'Topic 1', description: 'Description 1' },
         { id: 'topic2', title: 'Topic 2', description: 'Description 2' },
@@ -307,9 +311,11 @@ describe('TopicController', () => {
         .fn()
         .mockResolvedValue(mockTopics);
 
-      const result = await controller.findAllByMe(mockUserId);
+      const result = await controller.findAllByMe(mockUser);
 
-      expect(mockTopicService.findAllByUserId).toHaveBeenCalledWith(mockUserId);
+      expect(mockTopicService.findAllByUserId).toHaveBeenCalledWith(
+        mockUser.id,
+      );
       expect(result).toEqual({
         message: 'List of topics',
         data: mockTopics,
@@ -317,16 +323,21 @@ describe('TopicController', () => {
     });
 
     it('should throw an error if fetching topics for the user fails', async () => {
-      const mockUserId = 'user-id';
+      const mockUser = {
+        id: 'user-id',
+        email: 'user@email.com',
+      } as CurrentUserRequest;
 
       mockTopicService.findAllByUserId = jest
         .fn()
         .mockRejectedValue(new Error('Fetch failed'));
 
-      await expect(controller.findAllByMe(mockUserId)).rejects.toThrow(
+      await expect(controller.findAllByMe(mockUser)).rejects.toThrow(
         'Fetch failed',
       );
-      expect(mockTopicService.findAllByUserId).toHaveBeenCalledWith(mockUserId);
+      expect(mockTopicService.findAllByUserId).toHaveBeenCalledWith(
+        mockUser.id,
+      );
     });
   });
 });

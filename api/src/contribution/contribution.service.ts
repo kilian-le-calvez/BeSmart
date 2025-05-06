@@ -6,13 +6,12 @@ import {
 import { CreateContributionDto } from './dto/create-contribution.dto';
 import { UpdateContributionDto } from './dto/update-contribution.dto';
 import { PrismaService } from '@prisma-api/prisma.service';
-import { User } from '@prisma/client';
 
 @Injectable()
 export class ContributionService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(createContributionDto: CreateContributionDto, user: User) {
+  async create(createContributionDto: CreateContributionDto, userId: string) {
     // Check thread exists
     const thread = await this.prisma.thread.findUnique({
       where: { id: createContributionDto.threadId },
@@ -22,7 +21,7 @@ export class ContributionService {
     return this.prisma.contribution.create({
       data: {
         content: createContributionDto.content,
-        createdById: user.id,
+        createdById: userId,
         threadId: createContributionDto.threadId,
         parentContributionId:
           createContributionDto.parentContributionId ?? null,
@@ -57,10 +56,10 @@ export class ContributionService {
   async update(
     id: string,
     updateContributionDto: UpdateContributionDto,
-    user: User,
+    userId: string,
   ) {
     const contribution = await this.findOne(id);
-    if (contribution.createdById !== user.id) {
+    if (contribution.createdById !== userId) {
       throw new ForbiddenException('You can only edit your own contribution.');
     }
 
@@ -70,9 +69,9 @@ export class ContributionService {
     });
   }
 
-  async remove(id: string, user: User) {
+  async remove(id: string, userId: string) {
     const contribution = await this.findOne(id);
-    if (contribution.createdById !== user.id) {
+    if (contribution.createdById !== userId) {
       throw new ForbiddenException(
         'You can only delete your own contribution.',
       );

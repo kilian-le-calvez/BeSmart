@@ -3,11 +3,10 @@ import {
   MessageResponse,
   NotFoundResponse,
 } from '@common/response/message.response';
+import ApplyDecorators from '@common/swagger/apply-decorator.types';
 import { applyDecorators } from '@nestjs/common';
 import { ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
 import { TopicResponse } from '@topic/topic.response';
-
-type ApplyDecorators = ReturnType<typeof applyDecorators>;
 
 export function TopicCreateSwagger(): ApplyDecorators {
   return applyDecorators(

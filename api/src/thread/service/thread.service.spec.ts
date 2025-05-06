@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ThreadService } from './thread.service';
 import { PrismaService } from '@prisma-api/prisma.service';
+import { ThreadService } from './thread.service';
 
 const mockPrismaService = {
   user: {

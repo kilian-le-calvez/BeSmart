@@ -10,8 +10,10 @@ import {
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '@auth/jwt/jwt-auth.guard';
-import { CurrentUser } from '@common/decorators/current-user.decorator';
-import { User } from '@prisma/client';
+import {
+  CurrentUser,
+  CurrentUserRequest,
+} from '@common/decorators/current-user.decorator';
 import { MessageResponse } from '@common/response/message.response';
 import { BaseResponse } from '@common/response/base.response';
 import { TopicService } from '@topic/service/topic.service';
@@ -51,7 +53,7 @@ export class TopicController {
    */
   async create(
     @Body() createTopicDto: CreateTopicDto,
-    @CurrentUser() user: User,
+    @CurrentUser() user: CurrentUserRequest,
   ): Promise<BaseResponse<TopicResponse>> {
     const topicCreated = await this.topicService.create(
       user.id,
@@ -91,7 +93,7 @@ export class TopicController {
    * The response includes a message and the list of topics.
    */
   async findAllByMe(
-    @CurrentUser() user: User,
+    @CurrentUser() user: CurrentUserRequest,
   ): Promise<BaseResponse<TopicResponse[]>> {
     const listTopics = await this.topicService.findAllByUserId(user.id);
     return {
@@ -130,7 +132,7 @@ export class TopicController {
   async update(
     @Param('id') id: string,
     @Body() updateTopicDto: UpdateTopicDto,
-    @CurrentUser() user: User,
+    @CurrentUser() user: CurrentUserRequest,
   ): Promise<BaseResponse<TopicResponse>> {
     // Check if the user is the owner of the topic
     await this.topicService.unauthorizedOwner(user.id, id);
@@ -154,7 +156,7 @@ export class TopicController {
    */
   async delete(
     @Param('id') id: string,
-    @CurrentUser() user: User,
+    @CurrentUser() user: CurrentUserRequest,
   ): Promise<MessageResponse> {
     // Check if the user is the owner of the topic
     await this.topicService.unauthorizedOwner(user.id, id);

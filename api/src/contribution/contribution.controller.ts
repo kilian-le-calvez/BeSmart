@@ -12,9 +12,11 @@ import { ContributionService } from './contribution.service';
 import { CreateContributionDto } from './dto/create-contribution.dto';
 import { UpdateContributionDto } from './dto/update-contribution.dto';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
-import { CurrentUser } from '@common/decorators/current-user.decorator';
+import {
+  CurrentUser,
+  CurrentUserRequest,
+} from '@common/decorators/current-user.decorator';
 import { JwtAuthGuard } from '@auth/jwt/jwt-auth.guard';
-import { User } from '@prisma/client';
 
 @ApiTags('contributions')
 @ApiBearerAuth()
@@ -26,9 +28,9 @@ export class ContributionController {
   @Post()
   create(
     @Body() createContributionDto: CreateContributionDto,
-    @CurrentUser() user: User,
+    @CurrentUser() user: CurrentUserRequest,
   ) {
-    return this.contributionService.create(createContributionDto, user);
+    return this.contributionService.create(createContributionDto, user.id);
   }
 
   @Get('thread/:threadId')
@@ -45,13 +47,13 @@ export class ContributionController {
   update(
     @Param('id') id: string,
     @Body() updateContributionDto: UpdateContributionDto,
-    @CurrentUser() user: User,
+    @CurrentUser() user: CurrentUserRequest,
   ) {
-    return this.contributionService.update(id, updateContributionDto, user);
+    return this.contributionService.update(id, updateContributionDto, user.id);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string, @CurrentUser() user: User) {
-    return this.contributionService.remove(id, user);
+  remove(@Param('id') id: string, @CurrentUser() user: CurrentUserRequest) {
+    return this.contributionService.remove(id, user.id);
   }
 }

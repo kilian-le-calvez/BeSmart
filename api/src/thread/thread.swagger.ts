@@ -4,22 +4,45 @@ import {
   NotFoundResponse,
 } from '@common/response/message.response';
 import { applyDecorators } from '@nestjs/common';
-import { ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
-import { ThreadResponse } from './thread.response';
-
-type ApplyDecorators = ReturnType<typeof applyDecorators>;
+import {
+  ApiExtraModels,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+} from '@nestjs/swagger';
+import { ThreadResponse } from './response/thread.response';
+import { BaseResponse } from '@common/response/base.response';
+import ApplyDecorators from '@common/swagger/apply-decorator.types';
+import { ApiBaseResponse } from '@common/swagger/swagger-generic-response.decorator';
 
 export function ThreadCreateSwagger(): ApplyDecorators {
   return applyDecorators(
     ApiOperation({ summary: 'Create a new Thread' }),
-    ApiResponse({
+    ApiExtraModels(BaseResponse, ThreadResponse),
+    ApiBaseResponse(ThreadResponse, {
       status: 201,
       description: 'Thread created successfully',
-      type: ThreadResponse,
     }),
     ApiResponse({
-      status: 409,
-      description: 'Conflict - Thread with the same slug already exists',
+      status: 404,
+      description: 'Topic not found',
+      type: NotFoundResponse,
+    }),
+  );
+}
+
+export function ThreadFindByTopicSwagger(): ApplyDecorators {
+  return applyDecorators(
+    ApiOperation({ summary: 'Get all threads for a given topic' }),
+    ApiBaseResponse(ThreadResponse, {
+      isArray: true,
+      status: 200,
+      description: 'List of threads for a given topic',
+    }),
+    ApiResponse({
+      status: 404,
+      description: 'Topic not found',
+      type: NotFoundResponse,
     }),
   );
 }
