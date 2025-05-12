@@ -6,22 +6,14 @@ import { ForbiddenException } from '@nestjs/common';
 import { TopicResponse } from '@topic/topic.response';
 import { BaseResponse } from '@common/response/base.response';
 import { CurrentUserRequest } from '@common/decorators/current-user.decorator';
+import getMockPrismaService from '@tests/mock-prisma-service';
 
 describe('TopicController', () => {
   let controller: TopicController;
   let mockTopicService: Partial<Record<keyof TopicService, jest.Mock>>;
 
   beforeEach(async () => {
-    mockTopicService = {
-      // Mock methods of TopicService here
-      // For example:
-      findAll: jest.fn(),
-      findOne: jest.fn(),
-      create: jest.fn(),
-      update: jest.fn(),
-      delete: jest.fn(),
-      // etc.
-    };
+    mockTopicService = getMockPrismaService().topic;
 
     const module: TestingModule = await Test.createTestingModule({
       controllers: [TopicController],

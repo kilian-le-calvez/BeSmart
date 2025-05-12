@@ -76,6 +76,13 @@ export class ThreadController {
   }
 
   @Get(':id')
+  /**
+   * Retrieves a single thread by its ID.
+   *
+   * @param id - The unique identifier of the thread to retrieve.
+   * @returns A promise that resolves to a `BaseResponse` containing the thread data.
+   * @throws Will throw an error if the thread is not found or if an issue occurs during retrieval.
+   */
   async findOne(
     @Param('id') id: string,
   ): Promise<BaseResponse<ThreadResponse>> {
@@ -88,6 +95,17 @@ export class ThreadController {
   }
 
   @Patch(':id')
+  /**
+   * Updates an existing thread with the provided data.
+   *
+   * @param id - The unique identifier of the thread to update.
+   * @param updateThreadDto - The data transfer object containing the updated thread details.
+   * @param user - The current user making the request, used to verify ownership or permissions.
+   * @returns A promise that resolves to a `BaseResponse` containing the updated thread details.
+   *
+   * @throws {NotFoundException} If the thread with the given ID does not exist.
+   * @throws {ForbiddenException} If the user does not have permission to update the thread.
+   */
   async update(
     @Param('id') id: string,
     @Body() updateThreadDto: UpdateThreadDto,
@@ -105,6 +123,14 @@ export class ThreadController {
   }
 
   @Delete(':id')
+  /**
+   * Deletes a thread by its ID and returns a success message.
+   *
+   * @param id - The ID of the thread to be deleted.
+   * @param user - The current user making the request, containing user details.
+   * @returns A promise that resolves to a message response indicating the thread was deleted successfully.
+   * @throws Will throw an error if the thread cannot be deleted or if the user lacks permissions.
+   */
   async remove(
     @Param('id') id: string,
     @CurrentUser() user: CurrentUserRequest,
