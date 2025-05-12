@@ -8,6 +8,9 @@ import {
   setupE2ETest,
 } from '@tests/e2e-setup';
 import { slugify } from '@common/helpers/slugify';
+import { HttpStatus } from '@nestjs/common';
+
+const ZERO_LEN = 0;
 
 const testTopicDto = {
   title: 'The Philosophy of Stoicism e2example',
@@ -57,7 +60,10 @@ describe('Topics (e2e)', () => {
 
     it('should conflict on title topic', async () => {
       await setup.agent.post('/topics').send(testTopicDto).expect(201);
-      await setup.agent.post('/topics').send(testTopicDto).expect(409);
+      await setup.agent
+        .post('/topics')
+        .send(testTopicDto)
+        .expect(HttpStatus.CONFLICT);
     });
   });
 
@@ -68,8 +74,8 @@ describe('Topics (e2e)', () => {
       const response = await setup.agent.get('/topics').expect(200);
 
       expect(response.body.message).toEqual('List of topics');
-      expect(response.body.data.length).toBeGreaterThan(0);
-      expect(response.body.data[0].title).toBeDefined();
+      expect(response.body.data.length).toBeGreaterThan(ZERO_LEN);
+      expect(response.body.data[ZERO_LEN].title).toBeDefined();
     });
   });
 
@@ -89,7 +95,7 @@ describe('Topics (e2e)', () => {
     });
 
     it('should return 404 for non-existing topic', async () => {
-      await setup.agent.get('/topics/invalid-id').expect(404);
+      await setup.agent.get('/topics/invalid-id').expect(HttpStatus.NOT_FOUND);
     });
   });
 
@@ -113,7 +119,9 @@ describe('Topics (e2e)', () => {
     });
 
     it('should return 404 for non-existing topic', async () => {
-      await setup.agent.patch('/topics/invalid-id').expect(404);
+      await setup.agent
+        .patch('/topics/invalid-id')
+        .expect(HttpStatus.NOT_FOUND);
     });
 
     it('should return 403 for unauthorized user', async () => {
@@ -134,7 +142,7 @@ describe('Topics (e2e)', () => {
       await setup.agent
         .patch(`/topics/${topicId}`)
         .send(testTopicUpdateDto)
-        .expect(403);
+        .expect(HttpStatus.FORBIDDEN);
     });
   });
 
@@ -156,7 +164,9 @@ describe('Topics (e2e)', () => {
     });
 
     it('should return 404 for non-existing topic', async () => {
-      await setup.agent.delete('/topics/invalid-id').expect(404);
+      await setup.agent
+        .delete('/topics/invalid-id')
+        .expect(HttpStatus.NOT_FOUND);
     });
 
     it('should return 403 for unauthorized user', async () => {
@@ -174,7 +184,9 @@ describe('Topics (e2e)', () => {
         password: 'password',
       });
 
-      await setup.agent.delete(`/topics/${topicId}`).expect(403);
+      await setup.agent
+        .delete(`/topics/${topicId}`)
+        .expect(HttpStatus.FORBIDDEN);
     });
   });
 });
